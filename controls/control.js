@@ -103,11 +103,16 @@ const createContactInFreshdesk = async (element, basicAuth) => {
 export const listFilesAndProcess = async () => {
     try {
         await sftp.connect(config);
-        const fileList = await sftp.list(remoteFilePath);
-        const regex = /^SSFL_Customer_details(?:_Part[12])?\.xlsx$/;
+        console.log('Connected to SFTP server.');
 
+        const fileList = await sftp.list(remoteFilePath);
+        console.log(`Found ${fileList.length} files in the remote directory.`);
+
+        const regex = /^SSFL_Customer_details(?:_Part[12])?\.xlsx$/;
+        
         for (const file of fileList) {
             if (regex.test(file.name)) {
+                console.log(`Processing file: ${file.name}`);
                 const remoteFile = `${remoteFilePath}/${file.name}`;
                 const localFile = path.join(localDownloadPath, file.name);
 
@@ -136,6 +141,7 @@ export const listFilesAndProcess = async () => {
         }
 
         await sftp.end();
+        console.log('SFTP connection closed.');
     } catch (err) {
         console.error('Error:', err.message);
     }
